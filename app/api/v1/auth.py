@@ -1,14 +1,14 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from app.services import get_auth_service, AuthService
-from app.schemas import RegistrationInputSchema, RegistrationOutputSchema, LoginOutputSchema, LoginInputSchema, VerifyOutputSchema, UserSchema
+from app.schemas import RegistrationInputSchema, RegistrationOutputSchema, LoginOutputSchema, VerifyOutputSchema, UserSchema
 
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
 router = APIRouter(tags=["Регистрация и аутентификация"])
 
 
@@ -22,7 +22,7 @@ async def register(
     user: RegistrationInputSchema,
     auth_service: Annotated[AuthService, Depends(get_auth_service)]
 ):
-    user_data = await auth_service.register(user)
+    user_data = await auth_service.register(**user.model_dump())
     return user_data
 
 
@@ -33,10 +33,11 @@ async def register(
     response_model=LoginOutputSchema
 )
 async def login(
-    user: LoginInputSchema,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: Annotated[AuthService, Depends(get_auth_service)]
 ):
-    user, token = await auth_service.login(user)
+    user, token = await auth_service.login(login=form_data.username, password=form_data.password)
+
     user_data = UserSchema.model_validate(user).model_dump()
 
     return LoginOutputSchema(**user_data, access_token=token)

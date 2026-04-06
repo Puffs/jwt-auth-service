@@ -21,7 +21,7 @@ async def test_login(
     mock_users: list,
 ):
     """Тест аутентификации пользователя."""
-    response = await client.post("/api/v1/login" , json={"login":"pufff2@mail.ru", "password":"!23QWEasd"})
+    response = await client.post("/api/v1/login" , data={"username":"pufff2@mail.ru", "password":"!23QWEasd"})
 
     assert response.status_code == status.HTTP_200_OK
 

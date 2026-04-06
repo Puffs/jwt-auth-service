@@ -30,8 +30,8 @@ async def mock_users(db_session):
 @pytest_asyncio.fixture(scope='function')
 async def auth_client(client, mock_users):
     """Просто возвращает строку с токеном после логина."""
-    login_data = {"login": "pufff2@mail.ru", "password": "!23QWEasd"}
-    response = await client.post("/api/v1/login", json=login_data)
+    login_data = {"username": "pufff2@mail.ru", "password": "!23QWEasd"}
+    response = await client.post("/api/v1/login", data=login_data)
     
     token = response.json()["access_token"]
     client.headers.update({"Authorization": f"Bearer {token}"})

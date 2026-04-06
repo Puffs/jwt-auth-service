@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_async_session
 from app.models import User
-from app.schemas import RegistrationInputSchema, LoginInputSchema
 from app.repositories import AuthRepository
 from app.utils import create_access_token, decode_access_token
 
@@ -20,12 +19,12 @@ class AuthServiceABC(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    async def register(self, user_data: RegistrationInputSchema) -> User:
+    async def register(self, username: str, password: str, email: str) -> User:
         """Регистрация пользователя"""
         raise NotImplementedError
 
     @abstractmethod
-    async def login(self, user_data: LoginInputSchema) -> User:
+    async def login(self, login: str, password: str) -> User:
         """Аутентификация пользователя"""
         raise NotImplementedError
     
@@ -41,16 +40,14 @@ class AuthService(AuthServiceABC):
     def __init__(self, session: AsyncSession):
         self.repository = AuthRepository(session)
 
-    async def register(self, user_data: RegistrationInputSchema) -> User:
+    async def register(self, username: str, password: str, email: str) -> User:
         """Регистрация пользователя"""
-
-        new_user = await self.repository.register(user_data.model_dump())
+        new_user = await self.repository.register(username=username, password=password, email=email)
         return new_user
     
-    async def login(self, user_data: LoginInputSchema) -> tuple[User, str]:
+    async def login(self, login: str, password: str) -> tuple[User, str]:
         """Аутентификация пользователя"""
-
-        user = await self.repository.login(user_data.model_dump())
+        user = await self.repository.login(login, password)
         token_data = {
             "sub":str(user.id),
             "email": user.email,
@@ -60,17 +57,13 @@ class AuthService(AuthServiceABC):
 
         access_token = create_access_token(data=token_data)
 
-  
         return user, access_token
     
     async def verify(self, token: str) -> dict[str, Any]:
         """Проверка токена"""
-        
-        payload = decode_access_token(token)
-        return payload
+        return decode_access_token(token)
        
         
-
 def get_auth_service(
     session: AsyncSession = Depends(get_async_session),
 ) -> AuthService:

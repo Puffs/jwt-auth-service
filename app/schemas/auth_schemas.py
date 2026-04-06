@@ -31,12 +31,6 @@ class RegistrationOutputSchema(UserSchema):
     pass
 
 
-class LoginInputSchema(BaseModel):
-    """Схема входных данных для аутентификации."""
-    login: Union[EmailStr|str]
-    password: str
-
-
 class LoginOutputSchema(UserSchema):
     """Схема выходных данных после регистрации"""
     access_token: str

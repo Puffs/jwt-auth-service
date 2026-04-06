@@ -35,7 +35,7 @@ class AuthRepository(AuthRepositoryABC):
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def register(self, user_data: dict) -> User:
+    async def register(self, **user_data) -> User:
         """Регистрация пользователя."""
 
         username, email, password = user_data.get('username'), user_data.get('email'), user_data.get('password')
@@ -71,11 +71,11 @@ class AuthRepository(AuthRepositoryABC):
                     detail='Пользователь с таким email уже существует'
                 )
 
-    async def login(self, user_data: dict) -> User:
+    async def login(self, login: str, password: str) -> User:
         """Аутентификация пользователя."""
 
         http_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неправильный логин или пароль")
-        login, password = user_data.get('login'), user_data.get('password')
+
         query = select(User).where(
             or_(User.username==login, User.email==login)
         )
