@@ -11,7 +11,7 @@ async def test_register(
     """Тест регистрации пользователя."""
     response = await client.post("/api/v1/register" , json={"username":"pufff", "password":"!23QWEasd", "email":"pufff@mail.ru"})
 
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
 
 
     

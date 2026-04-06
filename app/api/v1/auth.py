@@ -16,7 +16,8 @@ router = APIRouter(tags=["Регистрация и аутентификация
     "/register",
     summary="Регистрация пользователя",
     description="Регистрация пользователя",
-    response_model=RegistrationOutputSchema
+    response_model=RegistrationOutputSchema,
+    status_code=status.HTTP_201_CREATED
 )
 async def register(
     user: RegistrationInputSchema,
