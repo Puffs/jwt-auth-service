@@ -31,5 +31,5 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, doc='Email', unique=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text('true'))
     role: Mapped[str] = mapped_column(sqlalchemy_Enum(UserRole), default=UserRole.USER, server_default=text("'USER'"))
-    created_at: Mapped[datetime] = mapped_column(DateTime, doc='Время регистрации', server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), doc='Время регистрации', server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

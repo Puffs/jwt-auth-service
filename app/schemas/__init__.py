@@ -1,4 +1,4 @@
-from .auth_schemas import RegistrationInputSchema, RegistrationOutputSchema, LoginOutputSchema, VerifyOutputSchema
+from .auth_schemas import RegistrationInputSchema, RegistrationOutputSchema, LoginOutputSchema, VerifyOutputSchema, InputRefreshSchema
 from .user_schemas import UserSchema
 
 __all__ = (
@@ -6,5 +6,6 @@ __all__ = (
     'RegistrationOutputSchema',
     'LoginOutputSchema',
     'VerifyOutputSchema',
-    'UserSchema'
+    'UserSchema',
+    'InputRefreshSchema',
 )

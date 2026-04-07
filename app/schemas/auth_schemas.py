@@ -32,13 +32,17 @@ class RegistrationOutputSchema(UserSchema):
 
 
 class LoginOutputSchema(UserSchema):
-    """Схема выходных данных после регистрации"""
+    """Схема выходных данных после логина"""
     access_token: str
     token_type: str = "bearer"
-    refresh_token: Optional[str] = None
+    refresh_token: str
 
 
 class VerifyOutputSchema(UserSchema):
     """Схема выходных данных для подтверждения токена"""
     id: UUID = Field(validation_alias="sub")
 
+
+class InputRefreshSchema(BaseModel):
+    """Схема входных данных для обновления токена"""
+    refresh_token: str

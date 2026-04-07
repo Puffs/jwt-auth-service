@@ -6,12 +6,10 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-# DB_ENV_FILE = os.getenv("DB_ENV_FILE", ".db.env")
 
 
 class DataBaseSettings(BaseSettings):
     """Конфиги базы данных."""
-
     model_config = SettingsConfigDict(case_sensitive=False, env_prefix='POSTGRES_', env_file=BASE_DIR / ".db.env")
     host: str
     port: str
@@ -23,7 +21,6 @@ class DataBaseSettings(BaseSettings):
 
 class AppSettings(BaseSettings):
     """Конфиги приложения."""
-
     model_config = SettingsConfigDict(case_sensitive=False, env_file=BASE_DIR / ".env",)
 
     debug: bool
@@ -32,6 +29,7 @@ class AppSettings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    refresh_token_expire_days: int
     test_base_url: str
 
 

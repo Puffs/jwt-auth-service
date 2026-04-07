@@ -5,19 +5,23 @@ from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
 
 from app.config import app_settings
-
+import uuid
 
 def create_access_token(data: dict[str, Any]) -> str:
     """Создает JWT токен."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=app_settings.access_token_expire_minutes)
-    to_encode.update({"exp": expire})
+
+    to_encode.update({
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=app_settings.access_token_expire_minutes),
+        "type": "access",
+        "jti": str(uuid.uuid4())
+    })
     encoded_jwt = jwt.encode(to_encode, app_settings.secret_key, algorithm=app_settings.algorithm)
 
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> dict[str, Any]:
+def decode_token(token: str) -> dict[str, Any]:
     """Декодирует токен."""
     try:
         return jwt.decode(token, app_settings.secret_key, algorithms=[app_settings.algorithm])
@@ -31,3 +35,17 @@ def decode_access_token(token: str) -> dict[str, Any]:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный токен"
         )
+    
+def create_refresh_token(data: dict[str, Any]) -> str:
+    """Создает refresh токен"""
+    to_encode = data.copy()
+    
+    expire = datetime.now(timezone.utc) + timedelta(days=app_settings.refresh_token_expire_days)
+    to_encode.update({
+        "exp": expire,
+        "type":"refresh",
+        "jti": str(uuid.uuid4())
+    })
+    encoded_jwt = jwt.encode(to_encode, app_settings.secret_key, algorithm=app_settings.algorithm)
+
+    return encoded_jwt
