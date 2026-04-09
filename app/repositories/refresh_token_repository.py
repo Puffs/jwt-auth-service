@@ -12,10 +12,6 @@ class RefreshTokenRepositoryABC(ABC):
     """Интерфейс репозитория для работы с рефреш токеном."""
 
     @abstractmethod
-    def __init__(self, session: AsyncSession):
-        pass
-    
-    @abstractmethod
     async def get_refresh_token(self, token: str) -> RefreshToken | None:
         """Получает refresh токен"""
         raise NotImplementedError

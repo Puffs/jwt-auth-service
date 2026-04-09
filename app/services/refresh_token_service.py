@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_async_session
 from app.models import User
-from app.repositories import AuthRepository, RefreshTokenRepository
+from app.repositories import AuthRepository, AuthRepositoryABC, RefreshTokenRepository, RefreshTokenRepositoryABC
 from app.utils import create_access_token, decode_token, create_refresh_token
 from app.config import app_settings
 
@@ -14,10 +14,6 @@ from app.config import app_settings
 class RefreshTokenServiceABC(ABC):
     """Интерфейс для работы с refresh токеном"""
 
-    @abstractmethod
-    def __init__(self, session: AsyncSession):
-        pass
-    
     @abstractmethod
     async def refresh(self, refresh_token: str) -> tuple[User, str, str]:
         """Обновление токена"""
@@ -27,9 +23,9 @@ class RefreshTokenServiceABC(ABC):
 class RefreshTokenService(RefreshTokenServiceABC):
     """Сервис для работы с refresh токеном"""
 
-    def __init__(self, session: AsyncSession):
-        self.auth_repository = AuthRepository(session)
-        self.refresh_repository = RefreshTokenRepository(session)
+    def __init__(self, auth_repository: AuthRepositoryABC, refresh_repository: RefreshTokenRepositoryABC):
+        self.auth_repository = auth_repository
+        self.refresh_repository = refresh_repository
 
     async def refresh(self, refresh_token: str) -> tuple[User, str, str]:
         payload = decode_token(refresh_token)
@@ -66,5 +62,8 @@ class RefreshTokenService(RefreshTokenServiceABC):
 
 def get_refresh_token_service(
     session: AsyncSession = Depends(get_async_session),
-) -> RefreshTokenService:
-    return RefreshTokenService(session)
+) -> RefreshTokenServiceABC:
+    auth_repository = AuthRepository(session)
+    refresh_repository = RefreshTokenRepository(session)
+
+    return RefreshTokenService(auth_repository, refresh_repository)

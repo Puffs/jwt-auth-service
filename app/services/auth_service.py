@@ -7,18 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_async_session
 from app.models import User
-from app.repositories import AuthRepository, RefreshTokenRepository
+from app.repositories import AuthRepository, RefreshTokenRepository, AuthRepositoryABC, RefreshTokenRepositoryABC
 from app.utils import create_access_token, decode_token, get_password_hash, verify_password, create_refresh_token
 from app.config import app_settings
 
 class AuthServiceABC(ABC):
     """Интерфейс для регистрации и аутентификации"""
 
-    @abstractmethod
-    def __init__(self, session: AsyncSession):
-        """Конструктор сервиса регистрации и аутентификации"""
-        pass
-    
     @abstractmethod
     async def register(self, username: str, password: str, email: str) -> User:
         """Регистрация пользователя"""
@@ -38,9 +33,9 @@ class AuthServiceABC(ABC):
 class AuthService(AuthServiceABC):
     """Сервис регистрации и аутентификации"""
 
-    def __init__(self, session: AsyncSession):
-        self.auth_repository = AuthRepository(session)
-        self.refresh_repository = RefreshTokenRepository(session)
+    def __init__(self, auth_repository: AuthRepositoryABC, refresh_repository: RefreshTokenRepositoryABC):
+        self.auth_repository = auth_repository
+        self.refresh_repository = refresh_repository
 
     async def register(self, username: str, password: str, email: str) -> User:
         existing_user = await self.auth_repository.get_user_by_username_or_email(username=username, email=email)
@@ -88,5 +83,8 @@ class AuthService(AuthServiceABC):
 
 def get_auth_service(
     session: AsyncSession = Depends(get_async_session),
-) -> AuthService:
-    return AuthService(session)
+) -> AuthServiceABC:
+    auth_repository = AuthRepository(session)
+    refresh_repository = RefreshTokenRepository(session)
+
+    return AuthService(auth_repository, refresh_repository)

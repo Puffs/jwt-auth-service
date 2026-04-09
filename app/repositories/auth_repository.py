@@ -10,10 +10,6 @@ class AuthRepositoryABC(ABC):
     """Интерфейс репозитория для работы с пользователями."""
 
     @abstractmethod
-    def __init__(self, session: AsyncSession):
-        pass
-
-    @abstractmethod
     async def create_user(self, **user_data) -> User:
         """Создание пользователя."""
         raise NotImplementedError
